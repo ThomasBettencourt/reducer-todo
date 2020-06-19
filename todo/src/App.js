@@ -1,55 +1,46 @@
-import React, { useState, useReducer, useEffect } from 'react';
+import React, { useReducer } from 'react';
+import { TodoForm } from './components/TodoForm';
+import { TodoList } from './components/TodoList';
 import { initialState, reducer } from './reducers/reducer';
-import TodoForm from './components/TodoForm';
-import ToDo from './components/ToDo';
-import './App.css';
 
 function App() {
-  const [newTodo, setNewToDo] = useState();
-  const [state, dispatch] = useReducer(reducer, initialState);
-  console.log('initial', initialState);
-  // dispatch({type: 'init'});
 
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(state));
-  }, [state]);
+  const [state, dispatch] = useReducer(reducer, initialState)
 
-  // const store = createStore(reducer);
+  // ADD NEW ITEM. STORE IN newToDo object. 
+  // DISPATCH type ADD_TODO, payload is the newTodo Object
 
-  const handleChanges = e => {
-    setNewToDo(e.target.value);
-  };
+  const addTodo = (input) => {
+    const newTodo = {
+      todo: input,
+      completed: false,
+      id: Math.random()
+    }
+    dispatch({ type: "ADD_TODO", payload: newTodo })
+  }
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    // dispatching an action defined by the type
-    dispatch({ type: 'ADD_TODO', payload: newTodo });
-  };
+  // COMPLETE TODO (MARK COMPLETED)
 
-  const toggleCompleted = clickId => {
-    // Dispathing an action.
-    // Action object below. Type and payload
-    dispatch({ type: 'TOGGLE_COMPLETED', payload: clickId });
-    // console.log(clickId, state);
-  };
+  const handleComplete = (id) => {
+    dispatch({ type: "COMPLETE_TODO", payload: id })
+  }
 
-  const clearCompleted = e => {
-    // console.log('clear')
-    e.preventDefault();
-    dispatch({ type: 'CLEAR_COMPLETED' });
-  };
+  // CLEAR COMPLETED
+
+  const clearCompleted = () => {
+    dispatch({ type: "CLEAR_COMPLETED_TODO" })
+  }
 
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <TodoForm
-          handleSubmit={handleSubmit}
-          handleChanges={handleChanges}
-          clear={clearCompleted}
-        />
+    <div className="App">
+      <TodoList state={state} handleComplete={handleComplete} />
+      <TodoForm addTodo={addTodo} />
 
-        <ToDo state={state} toggleCompleted={toggleCompleted} />
-      </header>
+      <button onClick={(e) => {
+        e.preventDefault()
+        clearCompleted()
+      }}> Clear Task </button>
+
     </div>
   );
 }
